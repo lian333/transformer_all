@@ -1,0 +1,15 @@
+custom_48_48_Autoformer_Custom_ftM_sl48_ll48_pl24_dm512_nh8_el2_dl1_df2048_fc1_ebtimeF_dtTrue_test_0  
+mse:0.683151125907898, mae:0.5937055945396423
+
+custom_48_48_Informer_Custom_ftM_sl48_ll48_pl24_dm512_nh8_el2_dl1_df2048_fc1_ebtimeF_dtTrue_test_0  
+mse:1.0641558170318604, mae:0.806219756603241
+
+custom_48_48_Reformer_Custom_ftM_sl48_ll48_pl24_dm512_nh8_el2_dl1_df2048_fc1_ebtimeF_dtTrue_test_0  
+mse:0.6670143604278564, mae:0.5926259160041809
+
+custom_48_48_Transformer_Custom_ftM_sl48_ll48_pl24_dm512_nh8_el2_dl1_df2048_fc1_ebtimeF_dtTrue_test_0  
+mse:0.861224889755249, mae:0.7039310932159424
+
+custom_48_48_Informer_Custom_ftM_sl48_ll48_pl24_dm512_nh8_el2_dl1_df2048_fc1_ebtimeF_dtTrue_test_0  
+mse:1.064349889755249, mae:0.8062760829925537
+

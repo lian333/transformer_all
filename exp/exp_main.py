@@ -8,6 +8,7 @@ from exp.exp_basic import Exp_Basic
 from models import Informer, Autoformer, Transformer, Reformer
 from utils.tools import EarlyStopping, adjust_learning_rate, visual
 from utils.metrics import metric
+from get_data import get_data
 
 import numpy as np
 import torch
@@ -100,9 +101,10 @@ class Exp_Main(Exp_Basic):
         return total_loss
 
     def train(self, setting):
-        train_data, train_loader = self._get_data(flag='train')
-        vali_data, vali_loader = self._get_data(flag='val')
-        test_data, test_loader = self._get_data(flag='test')
+        train_loader, vali_loader, test_loader, scaler=get_data(self.args)
+        train_data=train_loader.dataset
+        vali_data=vali_loader.dataset
+        test_data=test_loader.dataset
 
         path = os.path.join(self.args.checkpoints, setting)
         if not os.path.exists(path):
@@ -175,7 +177,15 @@ class Exp_Main(Exp_Basic):
         return
 
     def test(self, setting, test=0):
-        test_data, test_loader = self._get_data(flag='test')
+
+        train_loader, vali_loader, test_loader, scaler=get_data(self.args)
+        test_data=test_loader.dataset
+           
+
+
+
+
+
         if test:
             print('loading model')
             self.model.load_state_dict(torch.load(os.path.join('./checkpoints/' + setting, 'checkpoint.pth')))
@@ -239,8 +249,8 @@ class Exp_Main(Exp_Basic):
         return
 
     def predict(self, setting, load=False):
-        pred_data, pred_loader = self._get_data(flag='pred')
-
+        train_loader, pred_loader, test_loader, scaler=get_data(self.args)
+        pred_data=pred_loader.dataset
         if load:
             path = os.path.join(self.args.checkpoints, setting)
             best_model_path = path + '/' + 'checkpoint.pth'

@@ -23,7 +23,7 @@ def main():
     # data loader
     parser.add_argument('--data', type=str, required=True, default='ETTm1', help='dataset type')
     parser.add_argument('--root_path', type=str, default='./data/ETT/', help='root path of the data file')
-    parser.add_argument('--data_path', type=str, default='ETTh1.csv', help='data file')
+    parser.add_argument('--data_path', type=str, default='Wurzburg.csv', help='data file')
     parser.add_argument('--features', type=str, default='M',
                         help='forecasting task, options:[M, S, MS]; M:multivariate predict multivariate, S:univariate predict univariate, MS:multivariate predict univariate')
     parser.add_argument('--target', type=str, default='OT', help='target feature in S or MS task')
@@ -39,9 +39,9 @@ def main():
     # model define
     parser.add_argument('--bucket_size', type=int, default=4, help='for Reformer')
     parser.add_argument('--n_hashes', type=int, default=4, help='for Reformer')
-    parser.add_argument('--enc_in', type=int, default=7, help='encoder input size')
-    parser.add_argument('--dec_in', type=int, default=7, help='decoder input size')
-    parser.add_argument('--c_out', type=int, default=7, help='output size')
+    parser.add_argument('--enc_in', type=int, default=16, help='encoder input size')
+    parser.add_argument('--dec_in', type=int, default=16, help='decoder input size')
+    parser.add_argument('--c_out', type=int, default=16, help='output size')
     parser.add_argument('--d_model', type=int, default=512, help='dimension of model')
     parser.add_argument('--n_heads', type=int, default=8, help='num of heads')
     parser.add_argument('--e_layers', type=int, default=2, help='num of encoder layers')
@@ -77,7 +77,12 @@ def main():
     parser.add_argument('--use_multi_gpu', action='store_true', help='use multiple gpus', default=False)
     parser.add_argument('--devices', type=str, default='0,1,2,3', help='device ids of multile gpus')
 
-    args = parser.parse_args()
+    args = parser.parse_args(['--is_training','1','--model_id','custom_48_48',
+                              '--model','Informer','--data','Custom',
+                              '--features','M','--seq_len','48',
+                              '--label_len','48','--pred_len','24',
+                              '--e_layers','2','--d_layers','1',
+                              '--itr','1'])
 
     args.use_gpu = True if torch.cuda.is_available() and args.use_gpu else False
 
