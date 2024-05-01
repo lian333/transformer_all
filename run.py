@@ -4,7 +4,7 @@ import torch
 from exp.exp_main import Exp_Main
 import random
 import numpy as np
-
+Local_path=r'D:\result'
 
 def main():
     fix_seed = 2021
@@ -29,7 +29,7 @@ def main():
     parser.add_argument('--target', type=str, default='OT', help='target feature in S or MS task')
     parser.add_argument('--freq', type=str, default='h',
                         help='freq for time features encoding, options:[s:secondly, t:minutely, h:hourly, d:daily, b:business days, w:weekly, m:monthly], you can also use more detailed freq like 15min or 3h')
-    parser.add_argument('--checkpoints', type=str, default='./checkpoints/', help='location of model checkpoints')
+    parser.add_argument('--checkpoints', type=str, default=Local_path, help='location of model checkpoints')
 
     # forecasting task
     parser.add_argument('--seq_len', type=int, default=96, help='input sequence length')
@@ -57,7 +57,7 @@ def main():
                         help='time features encoding, options:[timeF, fixed, learned]')
     parser.add_argument('--activation', type=str, default='gelu', help='activation')
     parser.add_argument('--output_attention', action='store_true', help='whether to output attention in encoder')
-    parser.add_argument('--do_predict', action='store_true', help='whether to predict unseen future data')
+    parser.add_argument('--do_predict', action='store_true', help='whether to predict unseen future data', default=False)
 
     # optimization
     parser.add_argument('--num_workers', type=int, default=10, help='data loader num workers')
@@ -78,11 +78,11 @@ def main():
     parser.add_argument('--devices', type=str, default='0,1,2,3', help='device ids of multile gpus')
 
     args = parser.parse_args(['--is_training','1','--model_id','custom_48_48',
-                              '--model','LSTM','--data','Custom',
+                              '--model','Informer','--data','Custom',
                               '--features','M','--seq_len','48',
                               '--label_len','48','--pred_len','24',
                               '--e_layers','2','--d_layers','1',
-                              '--itr','1'])
+                              '--itr','2'])
 
     args.use_gpu = True if torch.cuda.is_available() and args.use_gpu else False
 

@@ -108,7 +108,7 @@ class Exp_Main(Exp_Basic):
         vali_data=vali_loader.dataset
         test_data=test_loader.dataset
 
-        path = os.path.join(self.args.checkpoints, setting)
+        path = os.path.join(self.args.checkpoints, setting,'checkpoints')
         if not os.path.exists(path):
             os.makedirs(path)
 
@@ -179,7 +179,7 @@ class Exp_Main(Exp_Basic):
         return
 
     def test(self, setting, test=0):
-
+        path = os.path.join(self.args.checkpoints, setting)
         train_loader, vali_loader, test_loader, scaler=get_data(self.args)
         test_data=test_loader.dataset
            
@@ -194,7 +194,7 @@ class Exp_Main(Exp_Basic):
 
         preds = []
         trues = []
-        folder_path = './test_results/' + setting + '/'
+        folder_path = path + '\\' +'data'
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
@@ -231,7 +231,7 @@ class Exp_Main(Exp_Basic):
         print('test shape:', preds.shape, trues.shape)
 
         # result save
-        folder_path = './results/' + setting + '/'
+        folder_path = path + '\\' +'data'+'/'
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
@@ -254,7 +254,9 @@ class Exp_Main(Exp_Basic):
         train_loader, pred_loader, test_loader, scaler=get_data(self.args)
         pred_data=pred_loader.dataset
         if load:
-            path = os.path.join(self.args.checkpoints, setting)
+            path = os.path.join(self.args.checkpoints, setting,'checkpoints')
+
+            #path = os.path.join(self.args.checkpoints, setting)
             best_model_path = path + '/' + 'checkpoint.pth'
             logging.info(best_model_path)
             self.model.load_state_dict(torch.load(best_model_path))
@@ -278,7 +280,7 @@ class Exp_Main(Exp_Basic):
         preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
 
         # result save
-        folder_path = './results/' + setting + '/'
+        folder_path = path + '\\' +'data'
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
