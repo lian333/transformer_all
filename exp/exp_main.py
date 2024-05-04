@@ -6,7 +6,7 @@ logging.basicConfig(format='%(asctime)s,%(msecs)03d %(levelname)-8s [%(filename)
 from data_provider.data_factory import data_provider
 from exp.exp_basic import Exp_Basic
 from models import Informer, Autoformer, Transformer, Reformer,LSTM,GRU
-from utils.tools import EarlyStopping, adjust_learning_rate, visual
+from utils.tools import EarlyStopping, adjust_learning_rate, gettime
 from utils.metrics import metric
 from get_data import get_data
 
@@ -14,9 +14,9 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch import optim
-
-import os
 import time
+import os
+import matplotlib.pyplot as plt
 
 import warnings
 import numpy as np
@@ -182,11 +182,6 @@ class Exp_Main(Exp_Basic):
         path = os.path.join(self.args.checkpoints, setting)
         train_loader, vali_loader, test_loader, scaler=get_data(self.args)
         test_data=test_loader.dataset
-           
-
-
-
-
 
         if test:
             print('loading model')
@@ -219,16 +214,25 @@ class Exp_Main(Exp_Basic):
                 trues.append(true)
                 if i % 20 == 0:
                     input = batch_x.detach().cpu().numpy()
-                    gt = np.concatenate((input[0, :, -1], true[0, :, -1]), axis=0)
-                    pd = np.concatenate((input[0, :, -1], pred[0, :, -1]), axis=0)
-                    visual(gt, pd, os.path.join(folder_path, str(i) + '.pdf'))
+                    fig,axs = plt.subplots(input.shape[-1],1,figsize=(10,2*input.shape[-1]))
+
+                    for j in np.arange(input.shape[-1]) :
+
+                        gt = np.concatenate((input[0, :, j], true[0, :, j]), axis=0)
+                        pd = np.concatenate((input[0, :, j], pred[0, :, j]), axis=0)
+                        axs[j].plot(gt,label='GroundTruth', linewidth=2)
+                        if preds is not None:
+                            axs[j].plot(pd, label='Prediction', linewidth=2)                     
+                        axs[j].legend()
+                    name = os.path.join(folder_path, str(j) + '.pdf')
+                    plt.savefig(name, bbox_inches='tight')
 
         preds = np.concatenate(preds, axis=0)
         trues = np.concatenate(trues, axis=0)
         print('test shape:', preds.shape, trues.shape)
         preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
         trues = trues.reshape(-1, trues.shape[-2], trues.shape[-1])
-        print('test shape:', preds.shape, trues.shape)
+        # print('test shape:', preds.shape, trues.shape)
 
         # result save
         folder_path = path + '\\' +'data'+'/'
@@ -237,9 +241,25 @@ class Exp_Main(Exp_Basic):
 
         mae, mse, rmse, mape, mspe = metric(preds, trues)
         print('mse:{}, mae:{}'.format(mse, mae))
+
+        name=str(setting)
+        name=str(name.split('_')[-2]+'_'+name.split('_')[-1])
+        # get time imformation for saving
+        currentTime =gettime()
+        with open('result.csv', 'a') as file:
+            if not os.path.exists('result.csv'):
+                os.makedirs('result.csv')
+            
+            file.write(f'{currentTime},Model,{self.args.model},seq_len,{self.args.seq_len},label_len,{self.args.label_len},pred_len,{self.args.pred_len}, MSE,{mse}, MAE,{mae},Testname,{name}')
+            file.write('\n')
+
+        print("Data written to 'result.csv'")
+        # 转换为DataFrame
+
+        
         f = open("result.txt", 'a')
         f.write(setting + "  \n")
-        f.write('mse:{}, mae:{}'.format(mse, mae))
+        f.write('mse:{}, mae:{}'.format(mse, mae, ))
         f.write('\n')
         f.write('\n')
         f.close()

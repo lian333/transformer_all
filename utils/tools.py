@@ -82,3 +82,8 @@ def visual(true, preds=None, name='./pic/test.pdf'):
         plt.plot(preds, label='Prediction', linewidth=2)
     plt.legend()
     plt.savefig(name, bbox_inches='tight')
+
+def gettime():
+    import time
+    return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()
+                            )

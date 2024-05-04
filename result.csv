@@ -1,0 +1,2 @@
+2024-05-04 17:18:45,Model,Autoformer,seq_len,96,label_len,48,pred_len,96, MSE,0.7414385676383972, MAE,0.6327821612358093,Testname,test_0
+2024-05-04 17:18:51,Model,Autoformer,seq_len,96,label_len,48,pred_len,96, MSE,0.7315053343772888, MAE,0.6240589618682861,Testname,test_1

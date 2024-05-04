@@ -78,9 +78,9 @@ def main():
     parser.add_argument('--devices', type=str, default='0,1,2,3', help='device ids of multile gpus')
 
     args = parser.parse_args(['--is_training','1','--model_id','custom_48_48',
-                              '--model','Informer','--data','Custom',
-                              '--features','M','--seq_len','48',
-                              '--label_len','48','--pred_len','24',
+                              '--model','Autoformer','--data','Custom',
+                              '--features','M','--seq_len','96',
+                              '--label_len','48','--pred_len','96',
                               '--e_layers','2','--d_layers','1',
                               '--itr','2'])
 

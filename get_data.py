@@ -88,8 +88,9 @@ def get_data(args):
     Val = process(val, flag='val', step_size=1, shuffle=True)
     Dte = process(test, flag='test', step_size=args.pred_len, shuffle=False)
 
-
-    print('Val data shape',len(Val.dataset))
+    print('Training data shape',len(Dtr.dataset))
+    print('Validation data shape',len(Val.dataset))
+    print('Testing data shape',len(Val.dataset))
     return Dtr, Val, Dte, scaler
 
 if __name__ == '__main__':
