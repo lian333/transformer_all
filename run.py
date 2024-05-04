@@ -79,8 +79,8 @@ def main():
 
     args = parser.parse_args(['--is_training','1','--model_id','custom_48_48',
                               '--model','Autoformer','--data','Custom',
-                              '--features','M','--seq_len','96',
-                              '--label_len','48','--pred_len','96',
+                              '--features','M','--seq_len','12500','--batch_size','1',
+                              '--label_len','6250','--pred_len','12500',
                               '--e_layers','2','--d_layers','1',
                               '--itr','2'])
 
@@ -156,4 +156,5 @@ def main():
 
 
 if __name__ == "__main__":
+
     main()

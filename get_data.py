@@ -9,7 +9,7 @@ import os
 def load_data(args):
     datapath=os.path.join(args.root_path,args.data_path)
     df = pd.read_csv(datapath)
-    df=df[:1000]
+    df=df
     df.drop_duplicates(subset=[df.columns[0]], inplace=True)
     df.rename(columns={'dt_iso':'date'},inplace=True)
 
@@ -79,7 +79,7 @@ def get_data(args):
             seq_y_mark = data_stamp[r_begin:r_end]
             samples.append((seq_x, seq_y, seq_x_mark, seq_y_mark))
 
-        samples = DataLoader(dataset=samples, batch_size=args.batch_size, shuffle=shuffle, num_workers=0, drop_last=False)
+        samples = DataLoader(dataset=samples, batch_size=args.batch_size, shuffle=shuffle, num_workers=0, drop_last=False, pin_memory=True)
 
         
         return samples
@@ -88,9 +88,18 @@ def get_data(args):
     Val = process(val, flag='val', step_size=1, shuffle=True)
     Dte = process(test, flag='test', step_size=args.pred_len, shuffle=False)
 
+    
+    print('the number of the batch in training data:',int(len(Dtr.dataset)/args.batch_size))
     print('Training data shape',len(Dtr.dataset))
     print('Validation data shape',len(Val.dataset))
     print('Testing data shape',len(Val.dataset))
+    for x, y, z, f in Dtr:
+        print(x.shape)
+        print(y.shape)
+        print(z.shape)
+        print(f.shape)
+        break
+        
     return Dtr, Val, Dte, scaler
 
 if __name__ == '__main__':
