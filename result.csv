@@ -16,3 +16,5 @@
 2024-05-04 19:28:11,Model,Autoformer,seq_len,96,label_len,48,pred_len,96, MSE,0.6912825703620911, MAE,0.6003151535987854,Testname,test_1
 2024-05-04 19:28:24,Model,Autoformer,seq_len,48,label_len,48,pred_len,48, MSE,0.710317850112915, MAE,0.6259835362434387,Testname,test_0
 2024-05-04 19:28:30,Model,Autoformer,seq_len,48,label_len,48,pred_len,48, MSE,0.7171453237533569, MAE,0.633556604385376,Testname,test_1
+2024-05-13 15:09:21,Model,Autoformer,seq_len,96,label_len,48,pred_len,48, MSE,0.8878964781761169, MAE,0.6801447868347168,Testname,test_0
+2024-05-13 15:10:29,Model,Autoformer,seq_len,96,label_len,48,pred_len,48, MSE,0.915442705154419, MAE,0.6858434081077576,Testname,test_1

@@ -346,3 +346,9 @@ mse:0.710317850112915, mae:0.6259835362434387
 custom_48_48_Autoformer_Custom_ftM_sl48_ll48_pl48_dm512_nh8_el2_dl1_df2048_fc1_ebtimeF_dtTrue_test_1  
 mse:0.7171453237533569, mae:0.633556604385376
 
+custom_48_48_Autoformer_Custom_ftM_sl96_ll48_pl48_dm512_nh8_el2_dl1_df2048_fc1_ebtimeF_dtTrue_test_0  
+mse:0.8878964781761169, mae:0.6801447868347168
+
+custom_48_48_Autoformer_Custom_ftM_sl96_ll48_pl48_dm512_nh8_el2_dl1_df2048_fc1_ebtimeF_dtTrue_test_1  
+mse:0.915442705154419, mae:0.6858434081077576
+

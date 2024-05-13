@@ -9,7 +9,7 @@ import os
 def load_data(args):
     datapath=os.path.join(args.root_path,args.data_path)
     df = pd.read_csv(datapath)
-    df=df
+    df=df[:1000]
     df.drop_duplicates(subset=[df.columns[0]], inplace=True)
     df.rename(columns={'dt_iso':'date'},inplace=True)
 
@@ -85,14 +85,17 @@ def get_data(args):
         return samples
 
     Dtr = process(train, flag='train', step_size=1, shuffle=True)
+    print('Training data shape',len(Dtr.dataset))
+
     Val = process(val, flag='val', step_size=1, shuffle=True)
+    print('Validation data shape',len(Val.dataset))
     Dte = process(test, flag='test', step_size=args.pred_len, shuffle=False)
 
     
     print('the number of the batch in training data:',int(len(Dtr.dataset)/args.batch_size))
     print('Training data shape',len(Dtr.dataset))
     print('Validation data shape',len(Val.dataset))
-    print('Testing data shape',len(Val.dataset))
+    print('Testing data shape',len(Dte.dataset))
     for x, y, z, f in Dtr:
         print(x.shape)
         print(y.shape)
