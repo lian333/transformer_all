@@ -85,5 +85,4 @@ def visual(true, preds=None, name='./pic/test.pdf'):
 
 def gettime():
     import time
-    return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()
-                            )
+    return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
