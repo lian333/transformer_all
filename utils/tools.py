@@ -1,6 +1,8 @@
 import numpy as np
 import torch
 import matplotlib.pyplot as plt
+from torch.utils.data import Dataset, DataLoader,IterableDataset,ConcatDataset,TensorDataset
+import pickle
 
 plt.switch_backend('agg')
 
@@ -86,3 +88,30 @@ def visual(true, preds=None, name='./pic/test.pdf'):
 def gettime():
     import time
     return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+
+
+
+
+
+class CustomDataset(torch.utils.data.Dataset):
+    def __init__(self, batches):
+        self.batches = batches
+    
+    def __len__(self):
+        return len(self.batches)
+    
+    def __getitem__(self, idx):
+        return self.batches[idx]
+
+def load_dataloader_and_scaler(filename):
+    with open(filename, 'rb') as f:
+        saved_dict = pickle.load(f)
+    batches = saved_dict['batches']
+    scaler = saved_dict['scaler']
+    
+    custom_dataset = CustomDataset(batches)
+
+    
+    dataloader = DataLoader(dataset=custom_dataset, batch_size=None, shuffle=False)
+
+    return dataloader, scaler
