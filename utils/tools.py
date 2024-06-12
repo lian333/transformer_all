@@ -92,26 +92,53 @@ def gettime():
 
 
 
+class CustomDataset(Dataset):
+    def __init__(self, filename, scaler):
+        self.filename = filename
+        self.scaler = scaler
+        self.batch_indices = self._get_batch_indices()
+    def _get_batch_indices(self):
+        batch_indices = []
+        with open(self.filename, 'rb') as f:
+            pickle.load(f)  # 读取 scaler 数据并跳过
+            while True:
+                try:
+                    batch_start = f.tell()
+                    pickle.load(f)
+                    batch_indices.append(batch_start)
+                except EOFError:
+                    break
+        return batch_indices
 
-class CustomDataset(torch.utils.data.Dataset):
-    def __init__(self, batches):
-        self.batches = batches
-    
     def __len__(self):
-        return len(self.batches)
+        return len(self.batch_indices)
     
     def __getitem__(self, idx):
-        return self.batches[idx]
+        with open(self.filename, 'rb') as f:
+            f.seek(self.batch_indices[idx])
+            batch = pickle.load(f)
+        return batch
+    
+    def inverse_transform(self, data):
+        min_val = torch.from_numpy(self.scaler.data_min_).type_as(data).to(data.device)
+        max_val = torch.from_numpy(self.scaler.data_max_).type_as(data).to(data.device)
+        
+        if data.shape[-1] != min_val.shape[-1]:
+            min_val = min_val[-1:]
+            max_val = max_val[-1:]
+
+        return data * (max_val - min_val) + min_val
+
+
 
 def load_dataloader_and_scaler(filename):
     with open(filename, 'rb') as f:
         saved_dict = pickle.load(f)
-    batches = saved_dict['batches']
+    # batches = saved_dict['batches']
     scaler = saved_dict['scaler']
     
-    custom_dataset = CustomDataset(batches)
-
-    
+    custom_dataset = CustomDataset(filename,scaler)
     dataloader = DataLoader(dataset=custom_dataset, batch_size=None, shuffle=False)
+    print('Dataloader and Scaler loaded successfully!')
 
     return dataloader, scaler

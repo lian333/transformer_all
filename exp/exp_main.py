@@ -6,7 +6,7 @@ logging.basicConfig(format='%(asctime)s,%(msecs)03d %(levelname)-8s [%(filename)
 from data_provider.data_factory import data_provider
 from exp.exp_basic import Exp_Basic
 from models import Informer, Autoformer, Transformer, Reformer,LSTM,GRU
-from utils.tools import EarlyStopping, adjust_learning_rate, gettime
+from utils.tools import EarlyStopping, adjust_learning_rate, gettime,load_dataloader_and_scaler
 from utils.metrics import metric
 from get_data import get_data
 
@@ -22,7 +22,11 @@ import warnings
 import numpy as np
 
 warnings.filterwarnings('ignore')
+dataloader_path=r'D:\studydata\Masterarbeit\dataloader'
 
+test_pickel_file=os.path.join(dataloader_path,'Dte_combined_dataloader_samples.pkl')
+train_pickel_file=os.path.join(dataloader_path,'Dre_combined_dataloader_samples.pkl')
+valid_pickel_file=os.path.join(dataloader_path,'Val_combined_dataloader_samples.pkl')
 
 class Exp_Main(Exp_Basic):
     def __init__(self, args):
@@ -55,7 +59,7 @@ class Exp_Main(Exp_Basic):
         criterion = nn.MSELoss()
         return criterion
 
-    def _predict(self, batch_x, batch_y, batch_x_mark, batch_y_mark):
+    def _predict(self, dataset_object,batch_x, batch_y, batch_x_mark, batch_y_mark):
         # decoder input
         dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
         dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
@@ -65,6 +69,10 @@ class Exp_Main(Exp_Basic):
             outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
             if self.args.output_attention:
                 outputs = outputs[0]
+
+            if self.args.inverse:
+                outputs = dataset_object.inverse_transform(outputs)
+
             return outputs
 
         if self.args.use_amp:
@@ -103,7 +111,14 @@ class Exp_Main(Exp_Basic):
         return total_loss
 
     def train(self, setting):
-        train_loader, vali_loader, test_loader, scaler=get_data(self.args)
+        # train_loader, vali_loader, test_loader, scaler=get_data(self.args)
+
+
+        train_loader, scaler = load_dataloader_and_scaler(train_pickel_file)
+        test_loader, scaler = load_dataloader_and_scaler(test_pickel_file)
+        vali_loader, scaler = load_dataloader_and_scaler(valid_pickel_file)
+
+
         train_data=train_loader.dataset
         vali_data=vali_loader.dataset
         test_data=test_loader.dataset
@@ -138,7 +153,7 @@ class Exp_Main(Exp_Basic):
                 batch_x_mark = batch_x_mark.float().to(self.device)
                 batch_y_mark = batch_y_mark.float().to(self.device)
 
-                outputs, batch_y = self._predict(batch_x, batch_y, batch_x_mark, batch_y_mark)
+                outputs, batch_y = self._predict(train_data,batch_x, batch_y, batch_x_mark, batch_y_mark)
 
                 loss = criterion(outputs, batch_y)
                 train_loss.append(loss.item())
