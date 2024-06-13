@@ -24,9 +24,9 @@ import numpy as np
 warnings.filterwarnings('ignore')
 dataloader_path=r'D:\studydata\Masterarbeit\dataloader'
 
-test_pickel_file=os.path.join(dataloader_path,'Dte_combined_dataloader_samples.pkl')
-train_pickel_file=os.path.join(dataloader_path,'Dre_combined_dataloader_samples.pkl')
-valid_pickel_file=os.path.join(dataloader_path,'Val_combined_dataloader_samples.pkl')
+test_pickel_file=os.path.join(dataloader_path,'Dte_10000_3.pkl')
+train_pickel_file=os.path.join(dataloader_path,'Dtr_10000_3.pkl')
+valid_pickel_file=os.path.join(dataloader_path,'Val_10000_3.pkl')
 
 class Exp_Main(Exp_Basic):
     def __init__(self, args):
@@ -158,7 +158,7 @@ class Exp_Main(Exp_Basic):
                 loss = criterion(outputs, batch_y)
                 train_loss.append(loss.item())
 
-                if (i + 1) % 100 == 0:
+                if (i + 1) % 2 == 0:
                     print("\titers: {0}, epoch: {1} | loss: {2:.7f}".format(i + 1, epoch + 1, loss.item()))
                     speed = (time.time() - time_now) / iter_count
                     left_time = speed * ((self.args.train_epochs - epoch) * train_steps - i)

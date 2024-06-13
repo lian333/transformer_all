@@ -80,7 +80,7 @@ def main():
 
     args = parser.parse_args(['--is_training','1','--model_id','custom_48_48',
                               '--model','LSTM','--data','Custom',
-                              '--features','M','--seq_len','1000','--batch_size','1',
+                              '--features','M','--seq_len','1000','--batch_size','32',
                               '--label_len','1000','--pred_len','1000',
                               '--e_layers','2','--d_layers','1',
                               '--itr','2'])
