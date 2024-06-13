@@ -62,7 +62,7 @@ def main():
     # optimization
     parser.add_argument('--num_workers', type=int, default=10, help='data loader num workers')
     parser.add_argument('--itr', type=int, default=2, help='experiments times')
-    parser.add_argument('--train_epochs', type=int, default=10, help='train epochs')
+    parser.add_argument('--train_epochs', type=int, default=2, help='train epochs')
     parser.add_argument('--batch_size', type=int, default=32, help='batch size of train input data')
     parser.add_argument('--patience', type=int, default=3, help='early stopping patience')
     parser.add_argument('--learning_rate', type=float, default=0.0001, help='optimizer learning rate')
@@ -80,8 +80,8 @@ def main():
 
     args = parser.parse_args(['--is_training','1','--model_id','custom_48_48',
                               '--model','LSTM','--data','Custom',
-                              '--features','M','--seq_len','1000','--batch_size','32',
-                              '--label_len','1000','--pred_len','1000',
+                              '--features','M','--seq_len','200','--batch_size','32',
+                              '--label_len','200','--pred_len','200',
                               '--e_layers','2','--d_layers','1',
                               '--itr','2'])
 

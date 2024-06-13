@@ -24,9 +24,9 @@ import numpy as np
 warnings.filterwarnings('ignore')
 dataloader_path=r'D:\studydata\Masterarbeit\dataloader'
 
-test_pickel_file=os.path.join(dataloader_path,'Dte_10000_3.pkl')
-train_pickel_file=os.path.join(dataloader_path,'Dtr_10000_3.pkl')
-valid_pickel_file=os.path.join(dataloader_path,'Val_10000_3.pkl')
+test_pickel_file=os.path.join(dataloader_path,'test2000_axis2.pkl')
+train_pickel_file=os.path.join(dataloader_path,'tra2000_axis2.pkl')
+valid_pickel_file=os.path.join(dataloader_path,'val2000_axis2.pkl')
 
 class Exp_Main(Exp_Basic):
     def __init__(self, args):
@@ -98,7 +98,7 @@ class Exp_Main(Exp_Basic):
                 batch_x_mark = batch_x_mark.float().to(self.device)
                 batch_y_mark = batch_y_mark.float().to(self.device)
 
-                outputs, batch_y = self._predict(batch_x, batch_y, batch_x_mark, batch_y_mark)
+                outputs, batch_y = self._predict(vali_data,batch_x, batch_y, batch_x_mark, batch_y_mark)
 
                 pred = outputs.detach().cpu()
                 true = batch_y.detach().cpu()
@@ -114,7 +114,7 @@ class Exp_Main(Exp_Basic):
         # train_loader, vali_loader, test_loader, scaler=get_data(self.args)
 
 
-        train_loader, scaler = load_dataloader_and_scaler(train_pickel_file)
+        train_loader, scaler = load_dataloader_and_scaler(valid_pickel_file)
         test_loader, scaler = load_dataloader_and_scaler(test_pickel_file)
         vali_loader, scaler = load_dataloader_and_scaler(valid_pickel_file)
 
@@ -195,7 +195,9 @@ class Exp_Main(Exp_Basic):
 
     def test(self, setting, test=0):
         path = os.path.join(self.args.checkpoints, setting)
-        train_loader, vali_loader, test_loader, scaler=get_data(self.args)
+        train_loader, scaler = load_dataloader_and_scaler(valid_pickel_file)
+        test_loader, scaler = load_dataloader_and_scaler(test_pickel_file)
+        vali_loader, scaler = load_dataloader_and_scaler(valid_pickel_file)
         test_data=test_loader.dataset
 
         if test:
@@ -217,7 +219,7 @@ class Exp_Main(Exp_Basic):
                 batch_x_mark = batch_x_mark.float().to(self.device)
                 batch_y_mark = batch_y_mark.float().to(self.device)
 
-                outputs, batch_y = self._predict(batch_x, batch_y, batch_x_mark, batch_y_mark)
+                outputs, batch_y = self._predict(test_data,batch_x, batch_y, batch_x_mark, batch_y_mark)
 
                 outputs = outputs.detach().cpu().numpy()
                 batch_y = batch_y.detach().cpu().numpy()
@@ -286,7 +288,10 @@ class Exp_Main(Exp_Basic):
         return
 
     def predict(self, setting, load=False):
-        train_loader, pred_loader, test_loader, scaler=get_data(self.args)
+        # train_loader, pred_loader, test_loader, scaler=get_data(self.args)
+        train_loader, scaler = load_dataloader_and_scaler(valid_pickel_file)
+        test_loader, scaler = load_dataloader_and_scaler(test_pickel_file)
+        pred_loader, scaler = load_dataloader_and_scaler(valid_pickel_file)
         pred_data=pred_loader.dataset
         if load:
             path = os.path.join(self.args.checkpoints, setting,'checkpoints')
