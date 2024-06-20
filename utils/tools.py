@@ -3,7 +3,9 @@ import torch
 import matplotlib.pyplot as plt
 from torch.utils.data import Dataset, DataLoader,IterableDataset,ConcatDataset,TensorDataset
 import pickle
-
+from pyod.models.ecod import ECOD
+from sklearn.cluster import DBSCAN
+from sklearn.ensemble import IsolationForest
 plt.switch_backend('agg')
 
 
@@ -142,3 +144,99 @@ def load_dataloader_and_scaler(filename):
     print('Dataloader and Scaler loaded successfully!')
 
     return dataloader, scaler
+
+
+
+def plotbatch(df):
+
+    fig, axs = plt.subplots(len(df.columns), 1, figsize=(10, 2*len(df.columns)))
+    timetitle=df.date.to_list()
+    timetitle=timetitle[0]
+    timetitle_str = str(timetitle).replace(':', '-')
+
+    for i, count in enumerate(df.columns):
+        axs[i].plot(df[count], label=count)
+        axs[i].set_title(count)
+    plt.tight_layout(rect=[0, 0, 1, 0.96])  # 调整布局，给 suptitle 留出空间
+
+    fig.suptitle(timetitle, fontsize=12)
+    output_path = f'D:/studydata/Masterarbeit/fullpicture_more10000_axis1/{timetitle_str}.png'
+
+    plt.savefig(output_path)
+    plt.close(fig)  # close the image 
+    return output_path
+
+
+def detect_outliers(data):
+       # Convert data to float for compatibility
+    data = data.astype(float)
+    # Isolation Forest
+    X = data.values.reshape(-1, 1)
+    clf = IsolationForest(n_estimators=100, contamination=0.05, random_state=42)
+    clf.fit(X)
+    outliers_if = clf.predict(X)
+    outliers_if = np.where(outliers_if == -1)[0]
+
+    # DBSCAN
+    dbscan = DBSCAN(eps=2, min_samples=3)
+    outliers_dbscan = dbscan.fit(X).labels_
+    outliers_dbscan = np.where(outliers_dbscan == -1)[0]
+
+    # ECOD
+    ecod = ECOD(contamination=0.15)
+    outliers_ecod = ecod.fit(X).labels_
+    outliers_ecod = np.where(outliers_ecod == 1)[0]
+    # if outliers are detected two or more times, keep them
+    outliers_if = outliers_if
+    outliers_dbscan = outliers_dbscan
+    outliers_ecod = outliers_ecod
+    outliers = np.concatenate((outliers_if, outliers_dbscan, outliers_ecod))
+    outliers = list(outliers)
+    index=[]
+    for x in outliers:
+        if outliers.count(x) >= 3:
+           index.append(x)
+    # 移动平滑替换异常值，使用窗口大小为20
+    plotdata_smooth = data.copy()
+    plotdata_smooth = plotdata_smooth.astype(float)
+
+    for i in index:
+        if i<5:
+            plotdata_smooth[i] = np.mean(data[i:i+5]).astype(float)
+
+        elif i>len(plotdata_smooth)-5:
+            plotdata_smooth[i] = np.mean(data[i-5:i]).astype(float)
+        else:
+            plotdata_smooth[i] = np.mean(data[i-5:i+5]).astype(float)
+    
+    return  plotdata_smooth,index
+
+# plot the outliers
+def switch(testdf,plot):
+    # Ensure all data columns (except 'date') are float type for compatibility
+    testdf = testdf.apply(lambda x: x.astype(float) if x.name != 'date' else x)
+    fig, axs = plt.subplots(len(testdf.columns[1:]), 1, figsize=(10, 2*len(testdf.columns[1:])))
+
+    timetitle=list(testdf['date'])[0]
+    timetitle_str = str(timetitle).replace(':', '-')
+    smoothed_data  = testdf.copy()
+
+    for i, column in enumerate(testdf.columns[2:]):
+        plotdata=testdf[column].reset_index(drop=True) 
+        plotdata_smooth, outliers = detect_outliers(plotdata)
+        smoothed_data[column] = plotdata_smooth.values
+        if plot:
+
+            axs[i].plot(plotdata, label='Original',zorder=2)
+            axs[i].scatter(outliers, plotdata[outliers], color='red', label='Outliers',zorder=1)
+            axs[i].plot(plotdata_smooth, label='Smoothed',zorder=3)
+            axs[i].legend()
+    if plot:
+
+        plt.tight_layout(rect=[0, 0, 1, 0.96])  # 调整布局，给 suptitle 留出空间
+        fig.suptitle(timetitle, fontsize=16)
+        output_path = f'D:/studydata/Masterarbeit/fullpicture_more10000_axis1/{timetitle_str}_outlier.png'
+        plt.savefig(output_path)
+        plt.close(fig)
+
+    return testdf
