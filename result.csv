@@ -1,22 +1,3 @@
-2024-05-04 17:18:45,Model,Autoformer,seq_len,96,label_len,48,pred_len,96, MSE,0.7414385676383972, MAE,0.6327821612358093,Testname,test_0
-2024-05-04 17:18:51,Model,Autoformer,seq_len,96,label_len,48,pred_len,96, MSE,0.7315053343772888, MAE,0.6240589618682861,Testname,test_1
-2024-05-04 19:09:22,Model,Autoformer,seq_len,96,label_len,48,pred_len,96, MSE,0.7414385676383972, MAE,0.6327821612358093,Testname,test_0
-2024-05-04 19:09:28,Model,Autoformer,seq_len,96,label_len,48,pred_len,96, MSE,0.7315053343772888, MAE,0.6240589618682861,Testname,test_1
-2024-05-04 19:10:13,Model,Autoformer,seq_len,96,label_len,48,pred_len,96, MSE,0.7414385676383972, MAE,0.6327821612358093,Testname,test_0
-2024-05-04 19:10:19,Model,Autoformer,seq_len,96,label_len,48,pred_len,96, MSE,0.7315053343772888, MAE,0.6240589618682861,Testname,test_1
-2024-05-04 19:11:53,Model,Autoformer,seq_len,96,label_len,48,pred_len,96, MSE,0.7414385676383972, MAE,0.6327821612358093,Testname,test_0
-2024-05-04 19:12:00,Model,Autoformer,seq_len,96,label_len,48,pred_len,96, MSE,0.7315053343772888, MAE,0.6240589618682861,Testname,test_1
-2024-05-04 19:12:17,Model,Autoformer,seq_len,96,label_len,48,pred_len,96, MSE,0.7364563941955566, MAE,0.6326207518577576,Testname,test_0
-2024-05-04 19:12:23,Model,Autoformer,seq_len,96,label_len,48,pred_len,96, MSE,0.6912825703620911, MAE,0.6003151535987854,Testname,test_1
-2024-05-04 19:13:02,Model,Autoformer,seq_len,48,label_len,48,pred_len,48, MSE,0.710317850112915, MAE,0.6259835362434387,Testname,test_0
-2024-05-04 19:13:08,Model,Autoformer,seq_len,48,label_len,48,pred_len,48, MSE,0.7171453237533569, MAE,0.633556604385376,Testname,test_1
-2024-05-04 19:14:50,Model,Autoformer,seq_len,48,label_len,48,pred_len,48, MSE,0.710317850112915, MAE,0.6259835362434387,Testname,test_0
-2024-05-04 19:14:56,Model,Autoformer,seq_len,48,label_len,48,pred_len,48, MSE,0.7171453237533569, MAE,0.633556604385376,Testname,test_1
-2024-05-04 19:28:04,Model,Autoformer,seq_len,96,label_len,48,pred_len,96, MSE,0.7364563941955566, MAE,0.6326207518577576,Testname,test_0
-2024-05-04 19:28:11,Model,Autoformer,seq_len,96,label_len,48,pred_len,96, MSE,0.6912825703620911, MAE,0.6003151535987854,Testname,test_1
-2024-05-04 19:28:24,Model,Autoformer,seq_len,48,label_len,48,pred_len,48, MSE,0.710317850112915, MAE,0.6259835362434387,Testname,test_0
-2024-05-04 19:28:30,Model,Autoformer,seq_len,48,label_len,48,pred_len,48, MSE,0.7171453237533569, MAE,0.633556604385376,Testname,test_1
-2024-05-13 15:09:21,Model,Autoformer,seq_len,96,label_len,48,pred_len,48, MSE,0.8878964781761169, MAE,0.6801447868347168,Testname,test_0
-2024-05-13 15:10:29,Model,Autoformer,seq_len,96,label_len,48,pred_len,48, MSE,0.915442705154419, MAE,0.6858434081077576,Testname,test_1
-2024-06-13 19:21:09,Model,LSTM,seq_len,200,label_len,200,pred_len,200, MSE,2567327186944.0, MAE,753082.375,Testname,test_0
-2024-06-13 19:21:11,Model,LSTM,seq_len,200,label_len,200,pred_len,200, MSE,3052964675584.0, MAE,790719.0,Testname,test_1
+version https://git-lfs.github.com/spec/v1
+oid sha256:0603edc38f6e19facbfce29645a54d500ea00c3551182f38f6e76c08acc5d615
+size 2999
