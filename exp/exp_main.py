@@ -22,15 +22,12 @@ import warnings
 import numpy as np
 
 warnings.filterwarnings('ignore')
-dataloader_path=r'D:\studydata\Masterarbeit\dataloader'
 
-test_pickel_file=os.path.join(dataloader_path,'test2000_axis2.pkl')
-train_pickel_file=os.path.join(dataloader_path,'tra2000_axis2.pkl')
-valid_pickel_file=os.path.join(dataloader_path,'val2000_axis2.pkl')
 
 class Exp_Main(Exp_Basic):
     def __init__(self, args):
         super(Exp_Main, self).__init__(args)
+        self.train_loader, self.vali_loader, self.test_loader, self.scaler = get_data(args)
 
     def _build_model(self):
         model_dict = {
@@ -111,13 +108,10 @@ class Exp_Main(Exp_Basic):
         return total_loss
 
     def train(self, setting):
-        # train_loader, vali_loader, test_loader, scaler=get_data(self.args)
-
-
-        train_loader, scaler = load_dataloader_and_scaler(valid_pickel_file)
-        test_loader, scaler = load_dataloader_and_scaler(test_pickel_file)
-        vali_loader, scaler = load_dataloader_and_scaler(valid_pickel_file)
-
+        train_loader = self.train_loader
+        vali_loader = self.vali_loader
+        test_loader = self.test_loader
+        scaler = self.scaler
 
         train_data=train_loader.dataset
         vali_data=vali_loader.dataset
@@ -194,10 +188,19 @@ class Exp_Main(Exp_Basic):
         return
 
     def test(self, setting, test=0):
+
+        train_loader = self.train_loader
+        vali_loader = self.vali_loader
+        test_loader = self.test_loader
+        scaler = self.scaler
+
+
+        train_data=train_loader.dataset
+        vali_data=vali_loader.dataset
+        test_data=test_loader.dataset
+
         path = os.path.join(self.args.checkpoints, setting)
-        train_loader, scaler = load_dataloader_and_scaler(valid_pickel_file)
-        test_loader, scaler = load_dataloader_and_scaler(test_pickel_file)
-        vali_loader, scaler = load_dataloader_and_scaler(valid_pickel_file)
+
         test_data=test_loader.dataset
 
         if test:
@@ -269,17 +272,7 @@ class Exp_Main(Exp_Basic):
             
             file.write(f'{currentTime},Model,{self.args.model},seq_len,{self.args.seq_len},label_len,{self.args.label_len},pred_len,{self.args.pred_len}, MSE,{mse}, MAE,{mae},Testname,{name}')
             file.write('\n')
-
         print("Data written to 'result.csv'")
-        # 转换为DataFrame
-
-        
-        f = open("result.txt", 'a')
-        f.write(setting + "  \n")
-        f.write('mse:{}, mae:{}'.format(mse, mae, ))
-        f.write('\n')
-        f.write('\n')
-        f.close()
 
         np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe]))
         np.save(folder_path + 'pred.npy', preds)
@@ -288,10 +281,8 @@ class Exp_Main(Exp_Basic):
         return
 
     def predict(self, setting, load=False):
-        # train_loader, pred_loader, test_loader, scaler=get_data(self.args)
-        train_loader, scaler = load_dataloader_and_scaler(valid_pickel_file)
-        test_loader, scaler = load_dataloader_and_scaler(test_pickel_file)
-        pred_loader, scaler = load_dataloader_and_scaler(valid_pickel_file)
+        pred_loader = self.vali_loader
+        scaler = self.scaler
         pred_data=pred_loader.dataset
         if load:
             path = os.path.join(self.args.checkpoints, setting,'checkpoints')
@@ -302,6 +293,7 @@ class Exp_Main(Exp_Basic):
             self.model.load_state_dict(torch.load(best_model_path))
 
         preds = []
+        trues = []
 
         self.model.eval()
         with torch.no_grad():
@@ -312,12 +304,21 @@ class Exp_Main(Exp_Basic):
                 batch_y_mark = batch_y_mark.float().to(self.device)
 
                 outputs, batch_y = self._predict(batch_x, batch_y, batch_x_mark, batch_y_mark)
+                preds.append(outputs.detach().cpu().numpy() )
+                trues.append(batch_y.detach().cpu().numpy())
 
-                pred = outputs.detach().cpu().numpy()  # .squeeze()
-                preds.append(pred)
+        preds = np.concatenate(preds, axis=0)
+        trues = np.concatenate(trues, axis=0)
+        print('val shape: preds.shape = %s, trues.shape = %s', preds.shape, trues.shape)
 
-        preds = np.array(preds)
-        preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
+        # preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
+        preds = preds.reshape(-1, 10)
+
+        preds = scaler.inverse_transform(preds)
+        # trues = trues.reshape(-1, trues.shape[-2], trues.shape[-1])
+        trues = trues.reshape(-1, 10)
+
+        trues = scaler.inverse_transform(trues)
 
         # result save
         folder_path = path + '\\' +'data'
