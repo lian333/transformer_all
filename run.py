@@ -29,7 +29,7 @@ def main():
     parser.add_argument('--target', type=str, default='OT', help='target feature in S or MS task')
     parser.add_argument('--freq', type=str, default='s',
                         help='freq for time features encoding, options:[s:secondly, t:minutely, h:hourly, d:daily, b:business days, w:weekly, m:monthly], you can also use more detailed freq like 15min or 3h')
-    parser.add_argument('--checkpoints', type=str, default=Local_path, help='location of model checkpoints')
+    parser.add_argument('--checkpoints', type=str, default='./checkpoints/', help='location of model checkpoints')
 
     # forecasting task
     parser.add_argument('--seq_len', type=int, default=96, help='input sequence length')
@@ -62,7 +62,9 @@ def main():
     # optimization
     parser.add_argument('--num_workers', type=int, default=10, help='data loader num workers')
     parser.add_argument('--itr', type=int, default=2, help='experiments times')
-    parser.add_argument('--train_epochs', type=int, default=2, help='train epochs')
+    parser.add_argument('--train_epochs', type=int, default=1
+                        
+                        , help='train epochs')
     parser.add_argument('--batch_size', type=int, default=32, help='batch size of train input data')
     parser.add_argument('--patience', type=int, default=3, help='early stopping patience')
     parser.add_argument('--learning_rate', type=float, default=0.0001, help='optimizer learning rate')
@@ -78,12 +80,12 @@ def main():
     parser.add_argument('--use_multi_gpu', action='store_true', help='use multiple gpus', default=False)
     parser.add_argument('--devices', type=str, default='0,1,2,3', help='device ids of multile gpus')
 
-    args = parser.parse_args(['--is_training','1','--model_id','custom_48_48',
-                              '--model','LSTM','--data','Custom',
-                              '--features','M','--seq_len','200','--batch_size','32',
-                              '--label_len','200','--pred_len','200',
+    args = parser.parse_args(['--is_training','1','--model_id','debug_20_20',
+                              '--model','GRU','--data','Custom',
+                              '--features','M','--seq_len','1000','--batch_size','32',
+                              '--label_len','500','--pred_len','1000',
                               '--e_layers','2','--d_layers','1',
-                              '--itr','2'])
+                              '--itr','1'])
 
     args.use_gpu = True if torch.cuda.is_available() and args.use_gpu else False
 
@@ -92,6 +94,22 @@ def main():
         device_ids = args.devices.split(',')
         args.device_ids = [int(id_) for id_ in device_ids]
         args.gpu = args.device_ids[0]
+
+    data_parser = {
+        'ETTh1':{'data':'ETTh1.csv','T':'OT','M':[7,7,7],'S':[1,1,1],'MS':[7,7,1]},
+        'Custom':{'data':'all_data_axis1.csv','T':'target','M':[10,10,10],'S':[1,1,1],'MS':[20,20,1]},
+        'debug':{'data':'part2_100000_200000.csv','T':'target','M':[10,10,10],'S':[1,1,1],'MS':[20,20,1]},
+    }
+    if args.data in data_parser.keys():
+        data_info = data_parser[args.data]
+        args.data_path = data_info['data']
+        args.target = data_info['M']
+        args.enc_in, args.dec_in, args.c_out = data_info[args.features]
+
+    args.freq = args.freq[-1:]
+
+
+
 
     print('Args in experiment:')
     print(args)

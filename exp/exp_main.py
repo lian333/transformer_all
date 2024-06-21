@@ -17,7 +17,7 @@ from torch import optim
 import time
 import os
 import matplotlib.pyplot as plt
-
+import pickle
 import warnings
 import numpy as np
 
@@ -111,7 +111,7 @@ class Exp_Main(Exp_Basic):
         train_loader = self.train_loader
         vali_loader = self.vali_loader
         test_loader = self.test_loader
-        scaler = self.scaler
+        # scaler = self.scaler
 
         train_data=train_loader.dataset
         vali_data=vali_loader.dataset
@@ -137,7 +137,12 @@ class Exp_Main(Exp_Basic):
             train_loss = []
 
             self.model.train()
+            batch_size = train_loader.batch_size
+            num_batches = len(train_loader)
+            print(f"Batch size: {batch_size}")
+            print(f"Number of batches: {num_batches}")
             epoch_time = time.time()
+
             for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(train_loader):
                 iter_count += 1
                 model_optim.zero_grad()
@@ -153,7 +158,7 @@ class Exp_Main(Exp_Basic):
                 train_loss.append(loss.item())
 
                 if (i + 1) % 50 == 0:
-                    print("\titers: {0}, epoch: {1} | loss: {2:.7f}".format(i + 1, epoch + 1, loss.item()))
+                    print("\titers: {0}/{1}, epoch: {2} | loss: {3:.7f}".format(i + 1, num_batches, epoch + 1, loss.item()))
                     speed = (time.time() - time_now) / iter_count
                     left_time = speed * ((self.args.train_epochs - epoch) * train_steps - i)
                     print('\tspeed: {:.4f}s/iter; left time: {:.4f}s'.format(speed, left_time))
@@ -187,13 +192,12 @@ class Exp_Main(Exp_Basic):
 
         return
 
-    def test(self, setting, test=0):
+    def test(self, setting, test=False):
 
         train_loader = self.train_loader
         vali_loader = self.vali_loader
         test_loader = self.test_loader
         scaler = self.scaler
-
 
         train_data=train_loader.dataset
         vali_data=vali_loader.dataset
@@ -209,7 +213,7 @@ class Exp_Main(Exp_Basic):
 
         preds = []
         trues = []
-        folder_path = path + '\\' +'data'
+        folder_path = path + '/' +'data'
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
@@ -244,7 +248,7 @@ class Exp_Main(Exp_Basic):
                         if preds is not None:
                             axs[j].plot(pd, label='Prediction', linewidth=2)                     
                         axs[j].legend()
-                    name = os.path.join(folder_path, str(j) + '.pdf')
+                    name = os.path.join(folder_path, str(i) + '_' + str(j) + '.pdf')
                     plt.savefig(name, bbox_inches='tight')
 
         preds = np.concatenate(preds, axis=0)
@@ -255,7 +259,7 @@ class Exp_Main(Exp_Basic):
         # print('test shape:', preds.shape, trues.shape)
 
         # result save
-        folder_path = path + '\\' +'data'+'/'
+        folder_path = path + '/' +'data'+'/'
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
@@ -277,20 +281,21 @@ class Exp_Main(Exp_Basic):
         np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe]))
         np.save(folder_path + 'pred.npy', preds)
         np.save(folder_path + 'true.npy', trues)
-
+        # save the scaler in the same folder
+        pickle.dump(scaler, open(folder_path + 'scaler.pkl', 'wb'))
         return
 
     def predict(self, setting, load=False):
         pred_loader = self.vali_loader
         scaler = self.scaler
         pred_data=pred_loader.dataset
-        if load:
-            path = os.path.join(self.args.checkpoints, setting,'checkpoints')
+        # if load:
+        #     path = os.path.join(self.args.checkpoints, setting,'checkpoints')
 
-            #path = os.path.join(self.args.checkpoints, setting)
-            best_model_path = path + '/' + 'checkpoint.pth'
-            logging.info(best_model_path)
-            self.model.load_state_dict(torch.load(best_model_path))
+        #     #path = os.path.join(self.args.checkpoints, setting)
+        #     best_model_path = path + '/' + 'checkpoint.pth'
+        #     print(best_model_path)
+        #     self.model.load_state_dict(torch.load(best_model_path))
 
         preds = []
         trues = []
@@ -303,7 +308,7 @@ class Exp_Main(Exp_Basic):
                 batch_x_mark = batch_x_mark.float().to(self.device)
                 batch_y_mark = batch_y_mark.float().to(self.device)
 
-                outputs, batch_y = self._predict(batch_x, batch_y, batch_x_mark, batch_y_mark)
+                outputs, batch_y = self._predict(pred_loader,batch_x, batch_y, batch_x_mark, batch_y_mark)
                 preds.append(outputs.detach().cpu().numpy() )
                 trues.append(batch_y.detach().cpu().numpy())
 
@@ -319,11 +324,11 @@ class Exp_Main(Exp_Basic):
         trues = trues.reshape(-1, 10)
 
         trues = scaler.inverse_transform(trues)
-
-        # result save
-        folder_path = path + '\\' +'data'
+        path = os.path.join(self.args.checkpoints, setting)
+        folder_path = path + '/' +'data'+'/'
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
+
 
         np.save(folder_path + 'real_prediction.npy', preds)
 

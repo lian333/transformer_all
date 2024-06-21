@@ -64,7 +64,7 @@ def get_data(args):
         damage=np.unique(data[data["date"]==x].Schadensklasse)
         # if length >10000 and len(damage)>=2:
 
-        if length >15000:
+        if length >10000:
             after.append(x)
             print('length of batches: %d',length)
     print('='*30)
