@@ -208,8 +208,12 @@ class Exp_Main(Exp_Basic):
         test_data=test_loader.dataset
 
         if test:
+            path = os.path.join(self.args.checkpoints, setting,'checkpoints')
+            best_model_path = path + '/' + 'checkpoint.pth'
+
             print('loading model')
-            self.model.load_state_dict(torch.load(os.path.join('./checkpoints/' + setting, 'checkpoint.pth')))
+            # self.model.load_state_dict(torch.load(os.path.join('./checkpoints/' + setting, 'checkpoint.pth')))
+            self.model.load_state_dict(torch.load(best_model_path))
 
         preds = []
         trues = []
@@ -236,7 +240,7 @@ class Exp_Main(Exp_Basic):
 
                 preds.append(pred)
                 trues.append(true)
-                if i % 20 == 0:
+                if i % 1 == 0:
                     input = batch_x.detach().cpu().numpy()
                     fig,axs = plt.subplots(input.shape[-1],1,figsize=(10,2*input.shape[-1]))
 

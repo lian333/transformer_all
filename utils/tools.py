@@ -215,7 +215,8 @@ def detect_outliers(data):
 def switch(testdf,plot):
     # Ensure all data columns (except 'date') are float type for compatibility
     testdf = testdf.apply(lambda x: x.astype(float) if x.name != 'date' else x)
-    fig, axs = plt.subplots(len(testdf.columns[1:]), 1, figsize=(10, 2*len(testdf.columns[1:])))
+    if plot:
+        fig, axs = plt.subplots(len(testdf.columns[1:]), 1, figsize=(10, 2*len(testdf.columns[1:])))
 
     timetitle=list(testdf['date'])[0]
     timetitle_str = str(timetitle).replace(':', '-')
@@ -239,4 +240,4 @@ def switch(testdf,plot):
         plt.savefig(output_path)
         plt.close(fig)
 
-    return testdf
+    return smoothed_data

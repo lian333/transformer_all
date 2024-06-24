@@ -36,22 +36,38 @@ class CustomDataset(Dataset):
     
 def load_data(args):
     datapath=os.path.join(args.root_path,args.data_path)
-    #datapath=r'D:\studydata\Masterarbeit\Data\all_data_axis1.csv'
+    axis1datapath=r'D:\studydata\Masterarbeit\Data\all_data_axis1.csv'
     #datapath=r'D:\studydata\Masterarbeit\lian333\informer\data\ETT\axis2_demo_tablepart1_0.csv'
-    df = pd.read_csv(datapath)
+    df = pd.read_csv(axis1datapath)
     df=df
-    df.drop_duplicates(subset=[df.columns[0]], inplace=True)
+
+    # df.drop_duplicates(subset=[df.columns[0]], inplace=True)
     jsonfile=os.path.join(args.root_path,"important_features.json")
     with open(jsonfile, 'r') as file:
         features = json.load(file)[:10]
     df["date"] = pd.to_datetime(df.Timestamp, unit='s')
+    if True:
+
+        df['Schadensklasse'] = 1
+
     features=["date",'Schadensklasse']+features
     data_selected = df[features]
     data_selected
-    
+    datapath=os.path.join(args.root_path,args.data_path)
+
+    axis1df = pd.read_csv(datapath)
+    axis1df["date"] = pd.to_datetime(axis1df.Timestamp, unit='s')
+    if True:
+
+        axis1df['Schadensklasse'] = 1
+
+    axis1df = axis1df[features]
+    axis1df
+    combined_df = pd.concat([data_selected, axis1df], axis=0, ignore_index=True)
+
     # df.rename(columns={'datetime':'date'},inplace=True)
-    # data_selected.to_csv('true_data.csv', index=False)
-    return data_selected
+    combined_df.to_csv('combine_axia1.csv', index=False)
+    return combined_df
 
 def get_data(args):
     print('data processing...')
@@ -64,7 +80,7 @@ def get_data(args):
         damage=np.unique(data[data["date"]==x].Schadensklasse)
         # if length >10000 and len(damage)>=2:
 
-        if length >10000:
+        if length >=2000:
             after.append(x)
             print('length of batches: %d',length)
     print('='*30)
@@ -74,6 +90,7 @@ def get_data(args):
     scaler = MinMaxScaler()
     data = data.copy()
     data_to_scale =data.drop(['date',"Schadensklasse"], axis=1, inplace=False)
+
     scaler.fit(data_to_scale)
 
 
@@ -138,7 +155,7 @@ def get_data(args):
         # 将生成的时间序列赋值回data的'date'列
         finaldata.loc[:, 'date'] = time_series
         # path=plotbatch(finaldata)
-        # finaldata=switch(finaldata, True)
+        # finaldata=switch(finaldata, False)
         # print(data)
         train = finaldata[:int(len(finaldata) * 0.6)]
         val = finaldata[int(len(finaldata) * 0.6):int(len(finaldata) * 0.8)]
