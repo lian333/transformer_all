@@ -36,38 +36,42 @@ class CustomDataset(Dataset):
     
 def load_data(args):
     datapath=os.path.join(args.root_path,args.data_path)
-    axis1datapath=r'D:\studydata\Masterarbeit\Data\all_data_axis1.csv'
+    synthpath=os.path.join(args.root_path,args.synthetic_data)
+    #datapath=r'D:\studydata\Masterarbeit\Data\all_data_axis1.csv'
     #datapath=r'D:\studydata\Masterarbeit\lian333\informer\data\ETT\axis2_demo_tablepart1_0.csv'
-    df = pd.read_csv(axis1datapath)
+    df = pd.read_csv(datapath)
     df=df
-
-    # df.drop_duplicates(subset=[df.columns[0]], inplace=True)
-    jsonfile=os.path.join(args.root_path,"important_features.json")
+    df.drop_duplicates(subset=[df.columns[0]], inplace=True)
+    jsonfile=os.path.join(args.root_path,args.feature_path)
     with open(jsonfile, 'r') as file:
         features = json.load(file)[:10]
     df["date"] = pd.to_datetime(df.Timestamp, unit='s')
-    if True:
-
-        df['Schadensklasse'] = 1
-
     features=["date",'Schadensklasse']+features
     data_selected = df[features]
     data_selected
-    datapath=os.path.join(args.root_path,args.data_path)
 
-    axis1df = pd.read_csv(datapath)
-    axis1df["date"] = pd.to_datetime(axis1df.Timestamp, unit='s')
-    if True:
+    if args.synthetic:
+        synth_df = pd.read_csv(synthpath)
+        synth_df["date"] = pd.to_datetime(synth_df.Timestamp, unit='s')
+        synth_df['Schadensklasse'] = 1
+        synth_df = synth_df[features]
+        data_selected = pd.concat([data_selected, synth_df], axis=0, ignore_index=True)
 
-        axis1df['Schadensklasse'] = 1
+    return data_selected
+    # datapath=os.path.join(args.root_path,args.data_path)
 
-    axis1df = axis1df[features]
-    axis1df
-    combined_df = pd.concat([data_selected, axis1df], axis=0, ignore_index=True)
+    # axis1df = pd.read_csv(datapath)
+    # axis1df["date"] = pd.to_datetime(axis1df.Timestamp, unit='s')
+    # if True:
+
+    #     axis1df['Schadensklasse'] = 1
+
+    # axis1df = axis1df[features]
+    # axis1df
+    # combined_df = pd.concat([data_selected, axis1df], axis=0, ignore_index=True)
 
     # df.rename(columns={'datetime':'date'},inplace=True)
-    combined_df.to_csv('combine_axia1.csv', index=False)
-    return combined_df
+    # data_selected.to_csv('true_data.csv', index=False)
 
 def get_data(args):
     print('data processing...')
@@ -80,7 +84,7 @@ def get_data(args):
         damage=np.unique(data[data["date"]==x].Schadensklasse)
         # if length >10000 and len(damage)>=2:
 
-        if length >=2000:
+        if length >=args.length:
             after.append(x)
             print('length of batches: %d',length)
     print('='*30)

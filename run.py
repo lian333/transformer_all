@@ -4,7 +4,7 @@ import torch
 from exp.exp_main import Exp_Main
 import random
 import numpy as np
-Local_path=r'D:\result'
+Local_path=r'D:\result\second'
 
 def main():
     fix_seed = 2021
@@ -24,12 +24,15 @@ def main():
     parser.add_argument('--data', type=str, required=True, default='ETTm1', help='dataset type')
     parser.add_argument('--root_path', type=str, default='./data/ETT/', help='root path of the data file')
     parser.add_argument('--data_path', type=str, default='all_data_axis1.csv', help='data file')
+    parser.add_argument('--synthetic_data', type=str, required=True, default='ETTm1', help='dataset type')
+
     parser.add_argument('--features', type=str, default='M',
                         help='forecasting task, options:[M, S, MS]; M:multivariate predict multivariate, S:univariate predict univariate, MS:multivariate predict univariate')
     parser.add_argument('--target', type=str, default='OT', help='target feature in S or MS task')
     parser.add_argument('--freq', type=str, default='s',
                         help='freq for time features encoding, options:[s:secondly, t:minutely, h:hourly, d:daily, b:business days, w:weekly, m:monthly], you can also use more detailed freq like 15min or 3h')
     parser.add_argument('--checkpoints', type=str, default=Local_path, help='location of model checkpoints')
+    parser.add_argument('--important_features', type=str, default='feature_important_axis1', help='feature_important_axis1 type')
 
     # forecasting task
     parser.add_argument('--seq_len', type=int, default=96, help='input sequence length')
@@ -73,20 +76,31 @@ def main():
     parser.add_argument('--lradj', type=str, default='type1', help='adjust learning rate')
     parser.add_argument('--use_amp', action='store_true', help='use automatic mixed precision training', default=False)
     parser.add_argument('--inverse', action='store_true', help='inverse output data', default=False)
+    parser.add_argument('--synthetic', type=bool, default=False, help='use synthetic data')
+    parser.add_argument('--length', type=int, default=2000, help='selet length for batches' )
 
     # GPU
     parser.add_argument('--use_gpu', type=bool, default=True, help='use gpu')
     parser.add_argument('--gpu', type=int, default=0, help='gpu')
     parser.add_argument('--use_multi_gpu', action='store_true', help='use multiple gpus', default=False)
     parser.add_argument('--devices', type=str, default='0,1,2,3', help='device ids of multile gpus')
-    parser.add_argument('--synthetic', type=bool, default=False, help='combine with synthetic data')
+    
+# [Autoformer, Informer, Transformer,LSTM,GRU]
+    args = parser.parse_args(['--is_training','1',
+                              
+                              '--model_id','axis1',
+                              '--data','Custom_axis1', 
+                              '--model','Informer', 
+                              '--important_features','important_features_axis2',
+                              '--seq_len','1000',
+                              '--label_len','500',
+                              '--pred_len','1000', 
+                              '--length','10000',
 
-    args = parser.parse_args(['--is_training','1','--model_id','axis2_smoothed',
-                              '--model','GRU','--data','debug',
-                              '--features','M','--seq_len','200','--batch_size','32',
-                              '--label_len','100','--pred_len','200',
-                              '--e_layers','2','--d_layers','1',
-                              '--itr','1'])
+                              '--e_layers','2','--d_layers','1','--itr','1',
+                              '--synthetic_data','synthetic', '--features','M','--batch_size','32',
+                            ])
+
 
     args.use_gpu = True if torch.cuda.is_available() and args.use_gpu else False
 
@@ -96,18 +110,27 @@ def main():
         args.device_ids = [int(id_) for id_ in device_ids]
         args.gpu = args.device_ids[0]
 
+
     data_parser = {
         'ETTh1':{'data':'ETTh1.csv','T':'OT','M':[7,7,7],'S':[1,1,1],'MS':[7,7,1]},
-        'Custom':{'data':'all_data_axis2.csv','T':'target','M':[10,10,10],'S':[1,1,1],'MS':[20,20,1]},
-        'debug':{'data':'synthetic_data_all.csv','T':'target','M':[10,10,10],'S':[1,1,1],'MS':[20,20,1]},
+        'Custom_axis1':{'data':'all_data_axis1.csv','T':'target','M':[10,10,10],'S':[1,1,1],'MS':[20,20,1]},
+        'Custom_axis2':{'data':'all_data_axis2.csv','T':'target','M':[10,10,10],'S':[1,1,1],'MS':[20,20,1]},
+        'important_features_axis1':{'json':'feature_important_axis1.json','T':'OT','M':[7,7,7],'S':[1,1,1],'MS':[7,7,1]},
+        'important_features_axis2':{'json':'feature_important_axis2.json','T':'OT','M':[7,7,7],'S':[1,1,1],'MS':[7,7,1]},
+        'synthetic':{'synthetic_data':'synthetic_data_all.csv','T':'target','M':[10,10,10],'S':[1,1,1],'MS':[20,20,1]},
     }
     if args.data in data_parser.keys():
         data_info = data_parser[args.data]
         args.data_path = data_info['data']
+        data_synthetic_info = data_parser[args.synthetic_data]
+        args.synthetic_data = data_synthetic_info['synthetic_data']
+        data_feature_info = data_parser[args.important_features]
+        args.feature_path = data_feature_info['json']
         args.target = data_info['M']
         args.enc_in, args.dec_in, args.c_out = data_info[args.features]
 
     args.freq = args.freq[-1:]
+
 
 
 

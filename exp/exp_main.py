@@ -192,7 +192,7 @@ class Exp_Main(Exp_Basic):
 
         return
 
-    def test(self, setting, test=False):
+    def test(self, setting, test=True):
 
         train_loader = self.train_loader
         vali_loader = self.vali_loader
@@ -240,7 +240,7 @@ class Exp_Main(Exp_Basic):
 
                 preds.append(pred)
                 trues.append(true)
-                if i % 1 == 0:
+                if i % 10 == 0:
                     input = batch_x.detach().cpu().numpy()
                     fig,axs = plt.subplots(input.shape[-1],1,figsize=(10,2*input.shape[-1]))
 
@@ -254,6 +254,9 @@ class Exp_Main(Exp_Basic):
                         axs[j].legend()
                     name = os.path.join(folder_path, str(i) + '_' + str(j) + '.pdf')
                     plt.savefig(name, bbox_inches='tight')
+        # average_mse = np.average(mses)
+        # average_mae = np.average(maes)
+        # print('mse:{}, mae:{}'.format(average_mse, average_mae))
 
         preds = np.concatenate(preds, axis=0)
         trues = np.concatenate(trues, axis=0)
