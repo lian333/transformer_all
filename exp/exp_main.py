@@ -192,7 +192,7 @@ class Exp_Main(Exp_Basic):
 
         return
 
-    def test(self, setting, test=True):
+    def test(self, setting, test=False):
 
         train_loader = self.train_loader
         vali_loader = self.vali_loader
@@ -277,13 +277,13 @@ class Exp_Main(Exp_Basic):
         name=str(name.split('_')[-2]+'_'+name.split('_')[-1])
         # get time imformation for saving
         currentTime =gettime()
-        with open('result.csv', 'a') as file:
-            if not os.path.exists('result.csv'):
-                os.makedirs('result.csv')
+        with open('new_result.csv', 'a') as file:
+            if not os.path.exists('new_result.csv'):
+                os.makedirs('new_result.csv')
             
             file.write(f'{currentTime},Model,{self.args.model},seq_len,{self.args.seq_len},label_len,{self.args.label_len},pred_len,{self.args.pred_len}, MSE,{mse}, MAE,{mae},Testname,{name}')
             file.write('\n')
-        print("Data written to 'result.csv'")
+        print("Data written to 'new_result.csv'")
 
         np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe]))
         np.save(folder_path + 'pred.npy', preds)

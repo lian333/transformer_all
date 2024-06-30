@@ -5,6 +5,10 @@ from exp.exp_main import Exp_Main
 import random
 import numpy as np
 Local_path=r'D:\result\second'
+import sys
+
+# Redirect stdout to a file
+sys.stdout = open('output.txt', 'w')
 
 def main():
     fix_seed = 2021
@@ -91,11 +95,11 @@ def main():
                               '--model_id','axis1',
                               '--data','Custom_axis1', 
                               '--model','Informer', 
-                              '--important_features','important_features_axis2',
-                              '--seq_len','1000',
-                              '--label_len','500',
-                              '--pred_len','1000', 
-                              '--length','10000',
+                              '--important_features','important_features_axis1',
+                              '--seq_len','200',
+                              '--label_len','100',
+                              '--pred_len','200', 
+                              '--length','2000',
 
                               '--e_layers','2','--d_layers','1','--itr','1',
                               '--synthetic_data','synthetic', '--features','M','--batch_size','32',
