@@ -8,7 +8,7 @@ Local_path=r'D:\result\second'
 import sys
 
 # Redirect stdout to a file
-sys.stdout = open('output.txt', 'w')
+# sys.stdout = open('output.txt', 'w')
 
 def main():
     fix_seed = 2021
@@ -92,10 +92,10 @@ def main():
 # [Autoformer, Informer, Transformer,LSTM,GRU]
     args = parser.parse_args(['--is_training','1',
                               
-                              '--model_id','axis1',
-                              '--data','Custom_axis1', 
-                              '--model','Informer', 
-                              '--important_features','important_features_axis1',
+                              '--model_id','axis2',
+                              '--data','Custom_axis2', 
+                              '--model','GRU', 
+                              '--important_features','important_features_axis2',
                               '--seq_len','200',
                               '--label_len','100',
                               '--pred_len','200', 
@@ -167,7 +167,7 @@ def main():
 
             exp = Exp(args)  # set experiments
             print('>>>>>>>start training : {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
-            exp.train(setting)
+            # exp.train(setting)
 
             print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
             exp.test(setting)

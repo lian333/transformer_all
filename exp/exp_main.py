@@ -55,7 +55,9 @@ class Exp_Main(Exp_Basic):
     def _select_criterion(self):
         criterion = nn.MSELoss()
         return criterion
-
+    def _select_criterion_mae(self):
+        criterion2 = nn.L1Loss()
+        return criterion2
     def _predict(self, dataset_object,batch_x, batch_y, batch_x_mark, batch_y_mark):
         # decoder input
         dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
@@ -192,7 +194,7 @@ class Exp_Main(Exp_Basic):
 
         return
 
-    def test(self, setting, test=False):
+    def test(self, setting, test=True):
 
         train_loader = self.train_loader
         vali_loader = self.vali_loader
@@ -206,6 +208,8 @@ class Exp_Main(Exp_Basic):
         path = os.path.join(self.args.checkpoints, setting)
 
         test_data=test_loader.dataset
+        criterion = self._select_criterion()
+        criterion2 = self._select_criterion_mae()
 
         if test:
             path = os.path.join(self.args.checkpoints, setting,'checkpoints')
@@ -217,6 +221,8 @@ class Exp_Main(Exp_Basic):
 
         preds = []
         trues = []
+        true_mse_losses = []
+        true_mae_losses = []
         folder_path = path + '/' +'data'
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
@@ -231,7 +237,10 @@ class Exp_Main(Exp_Basic):
                 batch_y_mark = batch_y_mark.float().to(self.device)
 
                 outputs, batch_y = self._predict(test_data,batch_x, batch_y, batch_x_mark, batch_y_mark)
-
+                true_mse_loss = criterion(outputs, batch_y)
+                true_mse_losses.append(true_mse_loss.item())
+                true_mae_loss = criterion2(outputs, batch_y)
+                true_mae_losses.append(true_mae_loss.item())
                 outputs = outputs.detach().cpu().numpy()
                 batch_y = batch_y.detach().cpu().numpy()
 
@@ -257,12 +266,17 @@ class Exp_Main(Exp_Basic):
         # average_mse = np.average(mses)
         # average_mae = np.average(maes)
         # print('mse:{}, mae:{}'.format(average_mse, average_mae))
+        mse_loss = np.average(true_mse_losses)
+        mae_loss = np.average(true_mae_losses)
+
+        print('Test Loss: {0:.7f}'.format(mse_loss))
+        print('Test Loss: {0:.7f}'.format(mae_loss))
 
         preds = np.concatenate(preds, axis=0)
         trues = np.concatenate(trues, axis=0)
-        print('test shape:', preds.shape, trues.shape)
-        preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
-        trues = trues.reshape(-1, trues.shape[-2], trues.shape[-1])
+        # print('test shape:', preds.shape, trues.shape)
+        # preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
+        # trues = trues.reshape(-1, trues.shape[-2], trues.shape[-1])
         # print('test shape:', preds.shape, trues.shape)
 
         # result save
@@ -270,8 +284,8 @@ class Exp_Main(Exp_Basic):
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
-        mae, mse, rmse, mape, mspe = metric(preds, trues)
-        print('mse:{}, mae:{}'.format(mse, mae))
+        # mae, mse, rmse, mape, mspe = metric(preds, trues)
+        # print('mse:{}, mae:{}'.format(mse, mae))
 
         name=str(setting)
         name=str(name.split('_')[-2]+'_'+name.split('_')[-1])
@@ -281,11 +295,11 @@ class Exp_Main(Exp_Basic):
             if not os.path.exists('new_result.csv'):
                 os.makedirs('new_result.csv')
             
-            file.write(f'{currentTime},Model,{self.args.model},seq_len,{self.args.seq_len},label_len,{self.args.label_len},pred_len,{self.args.pred_len}, MSE,{mse}, MAE,{mae},Testname,{name}')
+            file.write(f'{currentTime},Model,{self.args.model},seq_len,{self.args.seq_len},label_len,{self.args.label_len},pred_len,{self.args.pred_len}, MSE,{mse_loss}, MAE,{mae_loss},Testname,{name}')
             file.write('\n')
         print("Data written to 'new_result.csv'")
 
-        np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe]))
+        # np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe]))
         np.save(folder_path + 'pred.npy', preds)
         np.save(folder_path + 'true.npy', trues)
         # save the scaler in the same folder
