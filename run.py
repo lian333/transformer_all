@@ -4,7 +4,7 @@ import torch
 from exp.exp_main import Exp_Main
 import random
 import numpy as np
-Local_path=r'D:\result\second'
+Local_path=r'D:\result\last'
 import sys
 
 # Redirect stdout to a file
@@ -80,7 +80,7 @@ def main():
     parser.add_argument('--lradj', type=str, default='type1', help='adjust learning rate')
     parser.add_argument('--use_amp', action='store_true', help='use automatic mixed precision training', default=False)
     parser.add_argument('--inverse', action='store_true', help='inverse output data', default=False)
-    parser.add_argument('--synthetic', type=bool, default=False, help='use synthetic data')
+    parser.add_argument('--synthetic', type=bool, default=True, help='use synthetic data')
     parser.add_argument('--length', type=int, default=2000, help='selet length for batches' )
 
     # GPU
@@ -92,17 +92,17 @@ def main():
 # [Autoformer, Informer, Transformer,LSTM,GRU]
     args = parser.parse_args(['--is_training','1',
                               
-                              '--model_id','axis2',
-                              '--data','Custom_axis2', 
-                              '--model','GRU', 
-                              '--important_features','important_features_axis2',
-                              '--seq_len','200',
-                              '--label_len','100',
-                              '--pred_len','200', 
-                              '--length','2000',
+                              '--model_id','axis1',
+                              '--data','Custom_axis1', 
+                              '--model','Informer', 
+                              '--important_features','important_features_axis1',
+                              '--seq_len','1000',
+                              '--label_len','500',
+                              '--pred_len','1000', 
+                              '--length','10000',
+                              '--synthetic_data','synthetic_axis1_10000', '--features','M','--batch_size','32',
 
                               '--e_layers','2','--d_layers','1','--itr','1',
-                              '--synthetic_data','synthetic', '--features','M','--batch_size','32',
                             ])
 
 
@@ -122,14 +122,21 @@ def main():
         'important_features_axis1':{'json':'feature_important_axis1.json','T':'OT','M':[7,7,7],'S':[1,1,1],'MS':[7,7,1]},
         'important_features_axis2':{'json':'feature_important_axis2.json','T':'OT','M':[7,7,7],'S':[1,1,1],'MS':[7,7,1]},
         'synthetic':{'synthetic_data':'synthetic_data_all.csv','T':'target','M':[10,10,10],'S':[1,1,1],'MS':[20,20,1]},
+        'synthetic_axis1_2000':{'synthetic_data':'synthetic_data_2000_axis1.csv','T':'target','M':[10,10,10],'S':[1,1,1],'MS':[20,20,1]},
+        'synthetic_axis1_10000':{'synthetic_data':'synthetic_data_10000_axis1.csv','T':'target','M':[10,10,10],'S':[1,1,1],'MS':[20,20,1]},
+
+
     }
     if args.data in data_parser.keys():
         data_info = data_parser[args.data]
         args.data_path = data_info['data']
+
         data_synthetic_info = data_parser[args.synthetic_data]
         args.synthetic_data = data_synthetic_info['synthetic_data']
+
         data_feature_info = data_parser[args.important_features]
         args.feature_path = data_feature_info['json']
+
         args.target = data_info['M']
         args.enc_in, args.dec_in, args.c_out = data_info[args.features]
 
@@ -167,7 +174,7 @@ def main():
 
             exp = Exp(args)  # set experiments
             print('>>>>>>>start training : {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
-            # exp.train(setting)
+            exp.train(setting)
 
             print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
             exp.test(setting)
