@@ -223,10 +223,12 @@ class Exp_Main(Exp_Basic):
         trues = []
         true_mse_losses = []
         true_mae_losses = []
-        folder_path = path + '/' +'data'
+        folder_path = path +'\data'
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
-
+        result_folder = os.path.join(folder_path, str(self.args.model))
+        if not os.path.exists(result_folder):
+            os.makedirs(result_folder)
         self.model.eval()
         with torch.no_grad():
             for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(test_loader):
@@ -257,6 +259,13 @@ class Exp_Main(Exp_Basic):
 
                         gt = np.concatenate((input[0, :, j], true[0, :, j]), axis=0)
                         pd = np.concatenate((input[0, :, j], pred[0, :, j]), axis=0)
+                        if i==0:
+
+                            np.save(os.path.join(result_folder, f'{j}gt.npy'), gt)
+                            np.save(os.path.join(result_folder, f'{j}pd.npy'), pd)
+                            print('saved in the folder', result_folder)
+
+
                         axs[j].plot(gt,label='GroundTruth', linewidth=2)
                         if preds is not None:
                             axs[j].plot(pd, label='Prediction', linewidth=2)                     
@@ -266,17 +275,17 @@ class Exp_Main(Exp_Basic):
         # average_mse = np.average(mses)
         # average_mae = np.average(maes)
         # print('mse:{}, mae:{}'.format(average_mse, average_mae))
-        mse_loss = np.average(true_mse_losses)
-        mae_loss = np.average(true_mae_losses)
+        # mse_loss = np.average(true_mse_losses)
+        # mae_loss = np.average(true_mae_losses)
 
-        print('Test Loss: {0:.7f}'.format(mse_loss))
-        print('Test Loss: {0:.7f}'.format(mae_loss))
+        # print('Test Loss: {0:.7f}'.format(mse_loss))
+        # print('Test Loss: {0:.7f}'.format(mae_loss))
 
         preds = np.concatenate(preds, axis=0)
         trues = np.concatenate(trues, axis=0)
-        # print('test shape:', preds.shape, trues.shape)
-        # preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
-        # trues = trues.reshape(-1, trues.shape[-2], trues.shape[-1])
+        print('test shape:', preds.shape, trues.shape)
+        preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
+        trues = trues.reshape(-1, trues.shape[-2], trues.shape[-1])
         # print('test shape:', preds.shape, trues.shape)
 
         # result save
@@ -284,8 +293,8 @@ class Exp_Main(Exp_Basic):
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
-        # mae, mse, rmse, mape, mspe = metric(preds, trues)
-        # print('mse:{}, mae:{}'.format(mse, mae))
+        mae, mse, rmse, mape, mspe = metric(preds, trues)
+        print('mse:{}, mae:{}'.format(mse, mae))
 
         name=str(setting)
         name=str(name.split('_')[-2]+'_'+name.split('_')[-1])
@@ -295,7 +304,7 @@ class Exp_Main(Exp_Basic):
             if not os.path.exists('new_result.csv'):
                 os.makedirs('new_result.csv')
             
-            file.write(f'{currentTime},Model,{self.args.model},seq_len,{self.args.seq_len},label_len,{self.args.label_len},pred_len,{self.args.pred_len}, MSE,{mse_loss}, MAE,{mae_loss},Testname,{name}')
+            file.write(f'{currentTime},Model,{self.args.model},seq_len,{self.args.seq_len},label_len,{self.args.label_len},pred_len,{self.args.pred_len}, MSE,{mse}, MAE,{mae},Testname,{name}')
             file.write('\n')
         print("Data written to 'new_result.csv'")
 

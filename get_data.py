@@ -11,7 +11,7 @@ import numpy as np
 from datetime import timedelta
 import logging
 import random
-
+import pickle
 
 
 def set_seed(seed):
@@ -96,7 +96,13 @@ def get_data(args):
     data_to_scale =data.drop(['date',"Schadensklasse"], axis=1, inplace=False)
 
     scaler.fit(data_to_scale)
+    # save the scaler
+    with open('2000_axis2_scaler.pkl', 'wb') as f:
 
+        pickle.dump(scaler, f)
+    # load the scaler
+    with open('2000_axis2_scaler.pkl', 'rb') as f:
+        scaler = pickle.load(f)
 
     def process(dataset, flag, step_size, shuffle):
             # 对时间列进行编码
