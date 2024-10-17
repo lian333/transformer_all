@@ -105,13 +105,13 @@ def get_data(args):
         scaler = pickle.load(f)
 
     def process(dataset, flag, step_size, shuffle):
-            # 对时间列进行编码
+            # code the time column
             df_stamp = dataset['date']
             df_stamp.date = pd.to_datetime(df_stamp)
             data_stamp = time_features(df_stamp, timeenc=1, freq=args.freq)
             data_stamp = torch.FloatTensor(data_stamp)
-            # 接着归一化
-            # 首先去掉时间列
+            # then normalize the data
+            # first drop the time column
             dataset = dataset.copy()
 
             dataset.drop(['date',"Schadensklasse"], axis=1, inplace=True)
@@ -121,7 +121,7 @@ def get_data(args):
                 dataset = scaler.transform(dataset.values)
 
             dataset = torch.FloatTensor(dataset)
-            # 构造样本
+            # create samples
             samples = []
             #  print('dataset shape',len(dataset))
             #  print('args.seq_len',args.seq_len)
@@ -159,14 +159,12 @@ def get_data(args):
     for time in after:
         finaldata=data[data["date"]==time]
         start_date = finaldata['date'].iloc[0]
-        # 生成一个时间序列，从起始日期开始，每秒递增，长度与data相同
+        # generate a time series, starting from the start date, increasing every second, the length is the same as the data
         time_series = [start_date + timedelta(seconds=i) for i in range(len(finaldata))]
 
-        # 将生成的时间序列赋值回data的'date'列
+        # assign the generated time series back to the 'date' column of the data
         finaldata.loc[:, 'date'] = time_series
-        # path=plotbatch(finaldata)
-        # finaldata=switch(finaldata, False)
-        # print(data)
+
         train = finaldata[:int(len(finaldata) * 0.6)]
         val = finaldata[int(len(finaldata) * 0.6):int(len(finaldata) * 0.8)]
         test = finaldata[int(len(finaldata) * 0.8):len(finaldata)]
